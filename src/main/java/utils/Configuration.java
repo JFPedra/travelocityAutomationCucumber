@@ -16,6 +16,7 @@ import java.util.Properties;
 public class Configuration {
     private Properties properties = new Properties();
     private final Logger logger = getLogger(lookup().lookupClass());
+
     public Configuration() {
         setProperties();
     }
