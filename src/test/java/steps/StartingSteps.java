@@ -24,6 +24,8 @@ public class StartingSteps extends BaseSteps{
     @Before(order = 2)
     public void launchWebPage() {
         testContext.getDriver().get("https://www.travelocity.com");
+        testContext.getDriver().manage().deleteAllCookies();
+        testContext.getDriver().manage().window().maximize();
         logger.info("Page launched");
     }
 
