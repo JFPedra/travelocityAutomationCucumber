@@ -2,53 +2,98 @@ package pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.WebElement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class FlightResultsPage extends BasePage{
-    private final By searchResultsContainer = By.cssSelector("main[data-test-id='search-results']");
-    private final By sortingBoxLocator = By.id("sort-filter-dropdown-SORT");
-    private final Select boxSortBy = new Select(findElementBy(sortingBoxLocator));
+    private final By pageContent = By.cssSelector("ul[data-test-id='listings']");
+    private final By showMoreButton = By.cssSelector("button[data-test-id='show-more-button']");
     private final By resultContainer = By.cssSelector("li[data-test-id='offer-listing']");
-    private LinkedList<String> sortingBoxValues = new LinkedList<>();
+    private final By flightDuration = By.cssSelector("div[data-test-id='journey-duration']");
+    private final By selectButton = By.cssSelector("button[stid='select-button']");
+    private final By resultButton = By.cssSelector("button[data-stid^='FLIGHTS_DETAILS_AND_FARES']");
+    private final By flightFaresAndDetails = By.cssSelector("div[data-stid='flights-details-and-fares']");
+    private final By closeFlightDetails = By.cssSelector("button[class*='uitk-toolbar-button-v2-icon-only']");
+    private final By unlockTripSavingsModal = By.cssSelector("div[data-test-id='SellHotelForcedChoice']");
+    private final By noThanksButton = By.cssSelector("a[data-test-id='forcedChoiceNoThanks']");
+    private final By header = By.tagName("header");
+    private final Logger logger = LoggerFactory.getLogger(FlightResultsPage.class);
+
+    private String originalWindow = getDriver().getWindowHandle();
 
     public FlightResultsPage(WebDriver driver) {
         super(driver);
-        waitUntilElementIsPresent(sortingBoxLocator);
-        initSortingBoxValueList();
-
+        waitUntilElementIsPresent(showMoreButton, 15);
     }
 
-    public boolean areSortingBoxValuesCorrect() {
+    public boolean areFlightDurationDisplayed() {
+        boolean isFlightDurationDisplayed;
         int index = 0;
-        boolean isValueCorrect;
-        List<String> sortingBoxValues = getSortingBoxValues();
+        List<WebElement> flightResults = findListOfElements(resultContainer);
         do {
-            isValueCorrect = sortingBoxValues.get(index).equals(this.sortingBoxValues.get(index));
+            WebElement flightResult = flightResults.get(index);
+            isFlightDurationDisplayed = isElementDisplayed(findElementInsideOf(flightResult, flightDuration));
+            logger.info("Is flight duration displayed at position " +  index + "? " + isFlightDurationDisplayed);
+            if(!isFlightDurationDisplayed)
+                return false;
+            index ++;
+        } while (flightResults.size() > index);
+        return true;
+    }
+
+    public boolean doFlightsHaveDetails() {
+        boolean doesFlightHaveSelectButton;
+        boolean doesFlightHaveDetails;
+        List<WebElement> flightResults = findListOfElements(resultButton);
+        int index = 0;
+        do {
+            goAndClickOnFlightResult(flightResults.get(index));
+            waitUntilElementIsPresent(flightFaresAndDetails);
+            waitUntilElementIsClickable(selectButton);
+            doesFlightHaveSelectButton = isElementDisplayed(findElementBy(selectButton));
+            doesFlightHaveDetails = isElementDisplayed(findElementBy(flightFaresAndDetails));
             index++;
-        } while (index < sortingBoxValues.size() && isValueCorrect);
-        return isValueCorrect;
+            logger.info("Does flight " + index + " has details? " + doesFlightHaveDetails);
+            logger.info("Does flight " + index + " has select button? " + doesFlightHaveSelectButton);
+            click(closeFlightDetails);
+            if(!doesFlightHaveDetails)
+                return false;
+            if(!doesFlightHaveSelectButton)
+                return false;
+        }while (flightResults.size() > index);
+        return true;
     }
 
-    private List<String> getSortingBoxValues() {
-        return boxSortBy.getOptions().stream()
-                .map(element -> element.getAttribute("value"))
-                .collect(Collectors.toList());
+    public FlightResultsPage selectFirstFlightOption() {
+        List<WebElement> flightResults = findListOfElements(resultButton);
+        scrollToTheTop();
+        click(flightResults.get(0));
+        click(selectButton);
+        return new FlightResultsPage(getDriver());
+    }
+    public FlightDetailsPage selectThirdFlightOption() {
+        List<WebElement> flightResults = findListOfElements(resultButton);
+        //scrollToTheTop();
+        click(flightResults.get(2));
+        click(selectButton);
+        if(isElementPresentWithLocator(unlockTripSavingsModal, 2)) {
+            click(noThanksButton);
+        }
+        logger.info("Amount of tabs: " +  getDriver().getWindowHandles().size());
+        waitUntilTabsToBe(2);
+        getDriver().getWindowHandles().forEach( tab ->logger.info("Tabs opened: " + tab));
+        return new FlightDetailsPage(getDriver());
     }
 
-    private void initSortingBoxValueList() {
-        sortingBoxValues.add("PRICE_INCREASING");
-        sortingBoxValues.add("PRICE_DECREASING");
-        sortingBoxValues.add("DURATION_INCREASING");
-        sortingBoxValues.add("DURATION_DECREASING");
-        sortingBoxValues.add("DEPARTURE_INCREASING");
-        sortingBoxValues.add("DEPARTURE_DECREASING");
-        sortingBoxValues.add("ARRIVAL_INCREASING");
-        sortingBoxValues.add("ARRIVAL_DECREASING");
+    private void scrollToTheTop() {
+        scrollToElement(findElementBy(header));
     }
-
-
+    private void goAndClickOnFlightResult(WebElement flightResult) {
+        if(!flightResult.isEnabled())
+            scrollToElement(flightResult);
+        click(flightResult);
+    }
 }

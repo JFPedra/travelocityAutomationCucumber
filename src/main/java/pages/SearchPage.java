@@ -11,7 +11,10 @@ import java.time.format.DateTimeFormatter;
 public class SearchPage extends BasePage{
 
     private final By flightSectionButton = By.linkText("Flights");
+    private final By packageSectionButton = By.linkText("Packages");
     private final By sectionButtonSelected = By.cssSelector("li[role='presentation'][class='uitk-tab active']");
+    private final By flightsAddedButton = By.id("package-pills-flights");
+    private final By stayAddedButton = By.id("package-pills-hotels");
     private final By originTextSection = By.cssSelector("div[data-testid='location-field-leg1-origin-container']");
     private final By destinationTextSection = By.cssSelector("div[data-testid='location-field-leg1-destination-container'");
     private final By originTextInput = By.id("location-field-leg1-origin");
@@ -36,6 +39,11 @@ public class SearchPage extends BasePage{
     }
     public SearchPage clickOnFlightSectionButton() {
         click(flightSectionButton);
+        return this;
+    }
+
+    public SearchPage clickOnPackagesSectionButton() {
+        click(packageSectionButton);
         return this;
     }
 
@@ -91,7 +99,13 @@ public class SearchPage extends BasePage{
         click(searchButton);
     }
 
+    public boolean isFlightAddedButtonSelected() {
+        return isElementSelected(flightsAddedButton);
+    }
 
+    public boolean isStayAddedButtonSelected() {
+        return isElementSelected(stayAddedButton);
+    }
 
 
 }
