@@ -11,12 +11,24 @@ public class SearchPageSteps extends BaseSteps{
     public SearchPageSteps(TestContext testContext) {
         super(testContext);
     }
-    @Given("the user opens Travelocity at search flights section")
-    public void pageAtFlightSection() {
+    @Given("the user opens Travelocity at {word} section")
+    public void pageAtSection(String section) {
         searchPage = new SearchPage(getDriver());
-        if(!searchPage.getSectionSelected().equals("Flights")) {
-            searchPage.clickOnFlightSectionButton();
+        switch (section) {
+            case "flights":
+                if(!searchPage.getSectionSelected().equals("Flights")) {
+                    searchPage.clickOnFlightSectionButton();
+                }
+                break;
+            case "packages":
+                if(!searchPage.getSectionSelected().equals("Packages")) {
+                    searchPage.clickOnPackagesSectionButton();
+                }
+                break;
+            default:
+                break;
         }
+
         setDriver(searchPage.getDriver());
     }
 
