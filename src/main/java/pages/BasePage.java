@@ -1,6 +1,7 @@
 package pages;
 
 import org.openqa.selenium.*;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.FluentWait;
 import org.slf4j.Logger;
@@ -10,12 +11,13 @@ import java.time.Duration;
 import java.util.List;
 
 public class BasePage {
-    private WebDriver driver;
+    private final WebDriver driver;
     private final int MAX_TIMEOUT_IN_SECONDS = 40;
     private final Logger logger = LoggerFactory.getLogger(BasePage.class);
 
     public BasePage(WebDriver driver) {
         this.driver = driver;
+        getDriver().manage().window().maximize();
     }
 
     protected FluentWait<WebDriver> getWait() {
@@ -35,13 +37,18 @@ public class BasePage {
     protected List<WebElement> findListOfElements(By elementsLocator) {
         logger.info("Looking for elements by: " +  elementsLocator);
         List<WebElement> elementList = driver.findElements(elementsLocator);
-        logger.info("Elements found: " +  elementList);
+        logger.info("There were found " + elementList.size() + " elements");
         return elementList;
     }
 
     protected WebElement findElementBy(By locator) {
         waitUntilElementIsPresent(locator);
         return driver.findElement(locator);
+    }
+
+    protected WebElement findElementInsideOf(WebElement fatherElement, By locatorOfChildElement) {
+        logger.info("Looking for a child element located by " + locatorOfChildElement + " inside of a father element " + fatherElement);
+        return fatherElement.findElement(locatorOfChildElement);
     }
 
     protected boolean waitUntilElementIsPresent(By element) {
@@ -57,6 +64,28 @@ public class BasePage {
 
     protected void waitUntilElementIsPresent(WebElement element) {
         getWait().until(ExpectedConditions.not(ExpectedConditions.stalenessOf(element)));
+    }
+
+    protected boolean waitUntilElementIsVisible(WebElement element) {
+        try {
+            getWait().until(ExpectedConditions.refreshed(ExpectedConditions.visibilityOf(element)));
+            logger.info("Element: " +  element + " is visible");
+            return true;
+        } catch (TimeoutException exception) {
+            logger.error("Element: " + element + " isn't visible");
+            return false;
+        }
+    }
+
+    protected boolean waitUntilElementIsClickable(By elementLocator) {
+        try {
+            getWait().until(ExpectedConditions.elementToBeClickable(elementLocator));
+            logger.info("Element located by: " +  elementLocator + " is clickable");
+            return true;
+        }catch (TimeoutException exception) {
+            logger.error("Element located by: " +  elementLocator + " isn't clickable");
+            return false;
+        }
     }
 
     protected boolean waitUntilElementIsPresent(By element, int maxTimeoutInSeconds) {
@@ -143,6 +172,16 @@ public class BasePage {
         return elementText;
     }
 
+    protected boolean isElementDisplayed(WebElement element) {
+        logger.info("Checking if element " + element + " is displayed");
+        return element.isDisplayed();
+    }
+
+    protected boolean isElementSelected(By elementLocator) {
+        boolean isElementSelected = findElementBy(elementLocator).isSelected();
+        logger.info("Element located by " + elementLocator + " was selected: " +  isElementSelected);
+        return isElementSelected;
+    }
     protected boolean isElementPresentWithLocator(By locatorElement, int maxTimeoutInSeconds) {
         boolean isPresent;
         try {
@@ -154,6 +193,14 @@ public class BasePage {
             isPresent = false;
         }
         return isPresent;
+    }
+
+    protected void  waitUntilTabsToBe(int windowsAmount) {
+        getWait().until(driver -> driver.getWindowHandles().size() == windowsAmount);
+    }
+
+    protected void scrollToElement(WebElement element) {
+        new Actions(driver).scrollToElement(element).perform();
     }
 
     public WebDriver getDriver() {
