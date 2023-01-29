@@ -35,7 +35,6 @@ public class FlightResultsSteps extends BaseSteps{
         flightResultsPage.selectThirdFlightOption();
     }
 
-
     @Then("la pagina se duerme")
     public void ThreadSleep() throws Exception{
         Thread.sleep(40000);
