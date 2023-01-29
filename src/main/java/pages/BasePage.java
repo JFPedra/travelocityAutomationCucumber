@@ -47,7 +47,6 @@ public class BasePage {
     }
 
     protected WebElement findElementInsideOf(WebElement fatherElement, By locatorOfChildElement) {
-        logger.info("Looking for a child element located by " + locatorOfChildElement + " inside of a father element " + fatherElement);
         return fatherElement.findElement(locatorOfChildElement);
     }
 
@@ -64,17 +63,6 @@ public class BasePage {
 
     protected void waitUntilElementIsPresent(WebElement element) {
         getWait().until(ExpectedConditions.not(ExpectedConditions.stalenessOf(element)));
-    }
-
-    protected boolean waitUntilElementIsVisible(WebElement element) {
-        try {
-            getWait().until(ExpectedConditions.refreshed(ExpectedConditions.visibilityOf(element)));
-            logger.info("Element: " +  element + " is visible");
-            return true;
-        } catch (TimeoutException exception) {
-            logger.error("Element: " + element + " isn't visible");
-            return false;
-        }
     }
 
     protected boolean waitUntilElementIsClickable(By elementLocator) {
@@ -99,37 +87,18 @@ public class BasePage {
         }
     }
 
-    protected void waitElementToBeClickable(By elementLocator) {
-        logger.info("Wait until element located by: " + elementLocator +  " is clickable");
-        getWait().until(ExpectedConditions.elementToBeClickable(elementLocator));
-    }
      protected void waitElementToBeClickable(WebElement element) {
          logger.info("Wait until element: " + element +  " is clickable");
         getWait().until(ExpectedConditions.refreshed(ExpectedConditions.elementToBeClickable(element)));
      }
 
-    protected void waitVisibilityOfAllElements(By elementsLocator) {
-        logger.info("Waiting visibility of elements by : " + elementsLocator);
-        try {
-            getWait().until(ExpectedConditions.refreshed(ExpectedConditions.visibilityOfAllElements(driver.findElements(elementsLocator))));
-        } catch (TimeoutException exception) {
-            logger.error(exception.getLocalizedMessage());
-            List<WebElement> elementList = driver.findElements(elementsLocator);
-            logger.error("Amount of elements found: " + elementList.size());
-            elementList.forEach(element -> logger.error("Element " + element.getAccessibleName()
-                    + " is displayed? " + element.isDisplayed()));
-            throw new TimeoutException();
-        }
+    protected String getAttributeOf(By elementLocator, String attribute) {
+        return findElementBy(elementLocator).getAttribute(attribute);
     }
 
-    protected void waitPresenceOfAllElements(By elementLocator) {
-        logger.info("Waiting presence of all elements located by: " + elementLocator);
-        getWait().until(ExpectedConditions.presenceOfAllElementsLocatedBy(elementLocator));
-    }
-
-    protected void waitInvisibilityOF(By elementLocator) {
-        logger.info("Waiting invisibility of element with locator: " +  elementLocator);
-        getWait().until(ExpectedConditions.refreshed(ExpectedConditions.invisibilityOf(driver.findElement(elementLocator))));
+    protected void waitElementAttributeToBe(By elementLocator, String attribute, String value) {
+        getWait().until(ExpectedConditions.attributeToBe(elementLocator, attribute, value));
+        logger.info(elementLocator + " has " + attribute + " as " + findElementBy(elementLocator).getAttribute(attribute));
     }
 
     protected void click(By element) {
@@ -151,30 +120,35 @@ public class BasePage {
         driver.findElement(elementLocator).sendKeys(Keys.ENTER);
     }
 
-    protected void click(By elementLocator, int timeoutInSeconds) {
-        logger.info("Clicking on element located by " + elementLocator);
-        getWait(timeoutInSeconds).until(ExpectedConditions.elementToBeClickable(elementLocator));
-        driver.findElement(elementLocator).click();
-        logger.info("Element " +  elementLocator + " was clicked");
-    }
-
     protected void sendKeys(By element, String textToSend) {
         logger.info("Sending " + textToSend + " to element " +  element);
         waitUntilElementIsPresent(element);
         driver.findElement(element).sendKeys(textToSend);
     }
 
-    protected String getText(By element) {
-        logger.info("Getting text from: " + element);
+    protected String getText(By Locator) {
+        logger.info("Getting text from element locator: " + Locator);
+        waitUntilElementIsPresent(Locator);
+        String elementText = driver.findElement(Locator).getText();
+        logger.info("From element locator" + Locator +  " the text found was " + elementText);
+        return elementText;
+    }
+
+    protected String getText(WebElement element) {
         waitUntilElementIsPresent(element);
-        String elementText = driver.findElement(element).getText();
-        logger.info("From " + element +  " the text found was " + elementText);
+        String elementText = element.getText();
+        logger.info("Text found was " + elementText);
         return elementText;
     }
 
     protected boolean isElementDisplayed(WebElement element) {
         logger.info("Checking if element " + element + " is displayed");
         return element.isDisplayed();
+    }
+
+    protected boolean isElementDisplayed(By elementLocator) {
+        logger.info("Checking if element located by " + elementLocator + " is displayed");
+        return findElementBy(elementLocator).isDisplayed();
     }
 
     protected boolean isElementSelected(By elementLocator) {
@@ -195,8 +169,17 @@ public class BasePage {
         return isPresent;
     }
 
-    protected void  waitUntilTabsToBe(int windowsAmount) {
+    protected void waitUntilTabsToBe(int windowsAmount) {
         getWait().until(driver -> driver.getWindowHandles().size() == windowsAmount);
+    }
+
+    protected boolean isElementPresentInsideOf(WebElement parentElement, By childElementLocator) {
+        try {
+            parentElement.findElement(childElementLocator);
+            return true;
+        } catch (NotFoundException exception) {
+            return false;
+        }
     }
 
     protected void scrollToElement(WebElement element) {
