@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 public class FlightResultsPage extends BasePage{
-    private final By pageContent = By.cssSelector("ul[data-test-id='listings']");
     private final By showMoreButton = By.cssSelector("button[data-test-id='show-more-button']");
     private final By resultContainer = By.cssSelector("li[data-test-id='offer-listing']");
     private final By flightDuration = By.cssSelector("div[data-test-id='journey-duration']");
@@ -21,8 +20,6 @@ public class FlightResultsPage extends BasePage{
     private final By noThanksButton = By.cssSelector("a[data-test-id='forcedChoiceNoThanks']");
     private final By header = By.tagName("header");
     private final Logger logger = LoggerFactory.getLogger(FlightResultsPage.class);
-
-    private String originalWindow = getDriver().getWindowHandle();
 
     public FlightResultsPage(WebDriver driver) {
         super(driver);
@@ -76,7 +73,7 @@ public class FlightResultsPage extends BasePage{
     }
     public FlightDetailsPage selectThirdFlightOption() {
         List<WebElement> flightResults = findListOfElements(resultButton);
-        //scrollToTheTop();
+        scrollToTheTop();
         click(flightResults.get(2));
         click(selectButton);
         if(isElementPresentWithLocator(unlockTripSavingsModal, 2)) {
