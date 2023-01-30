@@ -101,6 +101,13 @@ public class BasePage {
         logger.info(elementLocator + " has " + attribute + " as " + findElementBy(elementLocator).getAttribute(attribute));
     }
 
+    protected void clickWithoutWait(By elementLocator) {
+        logger.info("Clicking on " + elementLocator);
+        waitUntilElementIsPresent(elementLocator);
+        driver.findElement(elementLocator).click();
+        logger.info("Element " +  elementLocator + " was clicked");
+    }
+
     protected void click(By element) {
         logger.info("Clicking on " + element);
         getWait().until(ExpectedConditions.elementToBeClickable(element));
