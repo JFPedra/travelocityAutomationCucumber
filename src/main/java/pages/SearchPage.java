@@ -23,6 +23,8 @@ public class SearchPage extends BasePage{
     private final By travelersButton = By.cssSelector("button[data-testid='travelers-field']");
     private final By departureDateButton = By.id("d1-btn");
     private final By arrivalDateButton = By.id("d2-btn");
+    private final By accommodationCheckInDateButton = By.id("d1-partial-btn");
+    private final By accommodationCheckOutDateButton = By.id("d2-partial-btn");
     private final By nextMonthButton = By.cssSelector("div[class='uitk-calendar'] button:nth-child(2)");
     private final By doneDatePickerButton = By.cssSelector("button[data-stid='apply-date-picker']");
     private final By amountOfAdults = By.id("adult-input-0");
@@ -31,6 +33,9 @@ public class SearchPage extends BasePage{
     private final By searchButton = By.cssSelector("button[data-testid='submit-button']");
     private final By selectAmountOfTravelersSection= By.cssSelector("button[data-testid='travelers-field']");
     private final By doneTravelersButton = By.cssSelector("button[data-testid='guests-done-button']");
+    private final By checkboxHotelForPartOfStay = By.id("package-partial-stay");
+    private final By errorMessageCheckIn = By.id("d1-partial-error");
+    private final By errorMessageCheckOut = By.id("d2-partial-error");
 
 
     private final LocalDate today = LocalDate.now();
@@ -78,32 +83,51 @@ public class SearchPage extends BasePage{
         return travelersButtonText;
     }
 
-    public SearchPage selectDepartureDate() {
+    public LocalDate selectDepartureDate() {
         LocalDate departureDate = today.plusMonths(2);
         String departureDateText = departureDate.format(DateTimeFormatter.ofPattern("LLL d, uuuu"));
         logger.info("Selecting departure day: " + departureDateText);
         click(departureDateButton);
-        String departureMonth = departureDate.format(DateTimeFormatter.ofPattern("LLLL uuuu"));
-        while (!isElementPresentWithLocator(By.xpath("//*[text()='" + departureMonth + "']"), 2)) {
-            click(nextMonthButton);
-        }
+        clickNextMonthWhileDesiredMonthIsNoPresent(departureDate);
         click(By.cssSelector("button[aria-label='" + departureDateText + "']"));
         click(doneDatePickerButton);
-        return this;
+        return departureDate;
     }
 
-    public SearchPage selectArrivalDate(int tripDurationInDays) {
+    public LocalDate selectArrivalDate(int tripDurationInDays) {
         LocalDate arrivalDate = today.plusMonths(2).plusDays(tripDurationInDays);
         String arrivalDateText = arrivalDate.format(DateTimeFormatter.ofPattern("LLL d, uuuu"));
         logger.info("Selecting arrival day: " + arrivalDateText);
         click(arrivalDateButton);
-        String departureMonth = arrivalDate.format(DateTimeFormatter.ofPattern("LLLL uuuu"));
-        while (!isElementPresentWithLocator(By.xpath("//*[text()='" + departureMonth + "']"), 2)) {
-            click(nextMonthButton);
-        }
+        clickNextMonthWhileDesiredMonthIsNoPresent(arrivalDate);
         click(By.cssSelector("button[aria-label='" + arrivalDateText + "']"));
         click(doneDatePickerButton);
-        return this;
+        return arrivalDate;
+    }
+
+    public void selectAccommodationDates(LocalDate departureDate, LocalDate arrivalDate) {
+        String checkInDate = departureDate.format(DateTimeFormatter.ofPattern("LLL d, uuuu"));
+        String checkOutDate = arrivalDate.format(DateTimeFormatter.ofPattern("LLL d, uuuu"));
+        logger.info("Selecting accommodation from " + checkInDate + " to " + checkOutDate);
+        click(accommodationCheckInDateButton);
+        clickNextMonthWhileDesiredMonthIsNoPresent(departureDate);
+        selectDesiredDate(checkInDate);
+        click(doneDatePickerButton);
+        click(accommodationCheckOutDateButton);
+        clickNextMonthWhileDesiredMonthIsNoPresent(arrivalDate);
+        selectDesiredDate(checkOutDate);
+        click(doneDatePickerButton);
+    }
+
+    private void clickNextMonthWhileDesiredMonthIsNoPresent(LocalDate desiredDate) {
+        String desiredMonth = desiredDate.format(DateTimeFormatter.ofPattern("LLLL uuuu"));
+        while (!isElementPresentWithLocator(By.xpath("//*[text()='" + desiredMonth + "']"), 2)) {
+            click(nextMonthButton);
+        }
+    }
+
+    private void selectDesiredDate(String desiredDate) {
+        click(By.cssSelector("button[aria-label='" + desiredDate + "']"));
     }
 
     public void confirmFlightsSearch() {
@@ -142,5 +166,18 @@ public class SearchPage extends BasePage{
         }
         click(doneTravelersButton);
         return this;
+    }
+
+    public void selectAccommodationsForPartCheckbox() {
+        logger.info("Selecting checkbox I only need accommodations for part of my trip");
+        clickWithoutWait(checkboxHotelForPartOfStay);
+    }
+
+    public String getCheckInErrorMessage() {
+        return getText(errorMessageCheckIn);
+    }
+
+    public String getCheckOutErrorMessage() {
+        return getText(errorMessageCheckOut);
     }
 }
