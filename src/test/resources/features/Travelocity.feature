@@ -35,13 +35,13 @@ Feature: Exploring travelocity webpage
     And there is validated that sponsored results appear first
     And la pagina se duerme
 
-    @FourthExercise
-    Scenario: Verify that the errr message displayed when looking for a hotel in incorrect dates is correct
-      Given the user opens Travelocity at packages section
-      When the user looks for flights from LAS to LAX to 1 adult
-      And the user selects dates for a trip of 13 days
-      And the user selects checkbox I only need accommodations for part of my trip
-      And the user selects dates that are not included in the period of the flight
-      And the user confirms search parameters
-      Then there are validated error messages for wrong accommodation dates
-      And la pagina se duerme
+  @FourthExercise
+  Scenario: Verify that the errr message displayed when looking for a hotel in incorrect dates is correct
+    Given the user opens Travelocity at packages section
+    When the user looks for flights from LAS to LAX to 1 adult
+    And the user selects dates for a trip of 13 days
+    And the user selects checkbox I only need accommodations for part of my trip
+    And the user selects dates that are not included in the period of the flight
+    And the user confirms search parameters
+    Then there are validated error messages for wrong accommodation dates
+    And la pagina se duerme
