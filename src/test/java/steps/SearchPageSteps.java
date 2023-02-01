@@ -33,6 +33,10 @@ public class SearchPageSteps extends BaseSteps{
                 if(!searchPage.getSectionSelected().equals("Stays"))
                     searchPage.clickOnHotelsSectionButton();
                 break;
+            case "cruises":
+                if(!searchPage.getSectionSelected().equals("Cruises"))
+                    searchPage.clickOnCruisesPage();
+                break;
             default:
                 throw new IllegalArgumentException();
         }
@@ -97,6 +101,19 @@ public class SearchPageSteps extends BaseSteps{
     public void confirmFlightParameters() {
         searchPage = new SearchPage(getDriver());
         searchPage.confirmFlightsSearch();
+    }
+
+    @When("the user selects {word} at Going To")
+    public void selectCruisesDestination(String destination) {
+        searchPage = new SearchPage(getDriver());
+        searchPage.selectCruisesDestination(destination);
+
+    }
+
+    @When("the user selects next month as Departure month")
+    public void selectNextMonthAsDepartureMonth() {
+        searchPage = new SearchPage(getDriver());
+        searchPage.selectCruisesDepartureMonth();
     }
 
     @Then("there are validated error messages for wrong accommodation dates")

@@ -2,6 +2,7 @@ package pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.Select;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,6 +14,7 @@ public class SearchPage extends BasePage{
     private final By flightSectionButton = By.linkText("Flights");
     private final By packageSectionButton = By.linkText("Packages");
     private final By hotelsSectionButton = By.linkText("Stays");
+    private final By cruisesSectionButton = By.linkText("Cruises");
     private final By sectionButtonSelected = By.cssSelector("li[role='presentation'][class='uitk-tab active']");
     private final By flightsAddedButton = By.id("package-pills-flights");
     private final By stayAddedButton = By.id("package-pills-hotels");
@@ -36,6 +38,7 @@ public class SearchPage extends BasePage{
     private final By checkboxHotelForPartOfStay = By.id("package-partial-stay");
     private final By errorMessageCheckIn = By.id("d1-partial-error");
     private final By errorMessageCheckOut = By.id("d2-partial-error");
+    private final By cruisesDestinationSelectionBox = By.id("cruise-destination");
 
 
     private final LocalDate today = LocalDate.now();
@@ -63,6 +66,11 @@ public class SearchPage extends BasePage{
         return this;
     }
 
+    public SearchPage clickOnCruisesPage() {
+        click(cruisesSectionButton);
+        return this;
+    }
+
     public SearchPage enterOrigin(String originToEnter) {
         click(originTextSection);
         sendKeys(originTextInput, originToEnter);
@@ -77,10 +85,34 @@ public class SearchPage extends BasePage{
         return this;
     }
 
+    public SearchPage selectCruisesDestination(String destination) {
+        Select destinationBox = new Select(findElementBy(cruisesDestinationSelectionBox));
+        destinationBox.selectByVisibleText(destination);
+        return this;
+    }
+
     public String getTravelersTex() {
         String travelersButtonText = getText(travelersButton);
         logger.info("Travelers button says: " + travelersButtonText);
         return travelersButtonText;
+    }
+
+    public SearchPage selectCruisesDepartureMonth() {
+        LocalDate departureEarliestDate = today.plusMonths(1);
+        String departureEarliestDateText = departureEarliestDate.format(DateTimeFormatter.ofPattern("LLL d, uuuu"));
+        LocalDate departureLatestDate = departureEarliestDate.plusMonths(1);
+        String departureLatestDateText = departureLatestDate.format(DateTimeFormatter.ofPattern("LLL d, uuuu"));
+        logger.info("Selecting earliest depart date: " + departureEarliestDateText);
+        click(departureDateButton);
+        clickNextMonthWhileDesiredMonthIsNoPresent(departureEarliestDate);
+        click(By.cssSelector("button[aria-label='" + departureEarliestDateText + "']"));
+        click(doneDatePickerButton);
+        logger.info("Selecting latest depart date: " + departureLatestDateText);
+        click(arrivalDateButton);
+        clickNextMonthWhileDesiredMonthIsNoPresent(departureLatestDate);
+        click(By.cssSelector("button[aria-label='" + departureLatestDateText + "']"));
+        click(doneDatePickerButton);
+        return this;
     }
 
     public LocalDate selectDepartureDate() {

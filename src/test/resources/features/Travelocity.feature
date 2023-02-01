@@ -45,3 +45,13 @@ Feature: Exploring travelocity webpage
     And the user confirms search parameters
     Then there are validated error messages for wrong accommodation dates
     And la pagina se duerme
+
+  @FifthExercise
+  Scenario: Cruises discount is displayed
+    Given the user opens Travelocity at cruises section
+    When the user selects Europe at Going To
+    And the user selects next month as Departure month
+    And the user confirms search parameters
+    Then there is validated that there are results with and without discounts
+    When the result with the best discount is selected
+    And la pagina se duerme
