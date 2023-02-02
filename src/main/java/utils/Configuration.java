@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 public class Configuration {
-    private Properties properties = new Properties();
+    private final Properties properties = new Properties();
     private final Logger logger = getLogger(lookup().lookupClass());
 
     public Configuration() {
@@ -59,9 +59,4 @@ public class Configuration {
     private String getBrowser() {
         return properties.getProperty("browser");
     }
-
-    public int getMaxTimeout() {
-        return Integer.parseInt(properties.getProperty("timeout"));
-    }
-
 }

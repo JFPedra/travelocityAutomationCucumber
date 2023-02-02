@@ -40,7 +40,6 @@ public class SearchPageSteps extends BaseSteps{
             default:
                 throw new IllegalArgumentException();
         }
-        setDriver(searchPage.getDriver());
     }
 
     @When("the user looks for flights from {word} to {word} to {int} adult(s)")

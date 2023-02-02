@@ -8,6 +8,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
+/**
+ * This page represents the web page that contains the flight results, and contains methods to validate the results and
+ * select the desired flight result
+ */
 public class FlightResultsPage extends BasePage{
     private final By showMoreButton = By.cssSelector("button[data-test-id='show-more-button']");
     private final By resultContainer = By.cssSelector("li[data-test-id='offer-listing']");
@@ -26,6 +30,10 @@ public class FlightResultsPage extends BasePage{
         waitUntilElementIsPresent(showMoreButton, 15);
     }
 
+    /**
+     * Validates if the flight duration is displayed in each result
+     * @return true if all results have flight duration
+     */
     public boolean areFlightDurationDisplayed() {
         boolean isFlightDurationDisplayed;
         int index = 0;
@@ -41,6 +49,10 @@ public class FlightResultsPage extends BasePage{
         return true;
     }
 
+    /**
+     * Validates if all flight results have flight details and select button
+     * @return true if all results have flight details and select button
+     */
     public boolean doFlightsHaveDetails() {
         boolean doesFlightHaveSelectButton;
         boolean doesFlightHaveDetails;
@@ -64,6 +76,10 @@ public class FlightResultsPage extends BasePage{
         return true;
     }
 
+    /**
+     * Select first flight result
+     * @return Flight results Page
+     */
     public FlightResultsPage selectFirstFlightOption() {
         List<WebElement> flightResults = findListOfElements(resultButton);
         scrollToTheTop();
@@ -71,6 +87,11 @@ public class FlightResultsPage extends BasePage{
         click(selectButton);
         return new FlightResultsPage(getDriver());
     }
+
+    /**
+     * Select third flight result
+     * @return Flight results Page
+     */
     public FlightDetailsPage selectThirdFlightOption() {
         List<WebElement> flightResults = findListOfElements(resultButton);
         scrollToTheTop();
@@ -79,15 +100,21 @@ public class FlightResultsPage extends BasePage{
         if(isElementPresentWithLocator(unlockTripSavingsModal, 2)) {
             click(noThanksButton);
         }
-        logger.info("Amount of tabs: " +  getDriver().getWindowHandles().size());
         waitUntilTabsToBe(2);
-        getDriver().getWindowHandles().forEach( tab ->logger.info("Tabs opened: " + tab));
         return new FlightDetailsPage(getDriver());
     }
 
+    /**
+     * Scroll to the top of the page
+     */
     private void scrollToTheTop() {
         scrollToElement(findElementBy(header));
     }
+
+    /**
+     * Scroll to a flight result and click it
+     * @param flightResult flight result to be clicked
+     */
     private void goAndClickOnFlightResult(WebElement flightResult) {
         if(!flightResult.isEnabled())
             scrollToElement(flightResult);
